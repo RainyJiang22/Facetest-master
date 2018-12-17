@@ -4,13 +4,12 @@
  如果检测成功就返回一个JSON字符串，如果检测失败就返回一个提示信息。
   想完成这样返回多个返回值，可以考虑接口
 
-  <br>
+  
      public interface CallBack{
           void success(JSONObject result);
           void error(FaceppParseException exception);
-      }
+     }
 
-  <br>
   - 其次在主函数解析face对象的属性，因为要围着人脸画一个矩形，因此需要获得
   人脸左上角的起始坐标和人脸的宽度和高度,确定一个矩形
 
