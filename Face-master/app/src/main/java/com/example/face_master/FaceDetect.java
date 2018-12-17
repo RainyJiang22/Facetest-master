@@ -5,8 +5,11 @@ import android.graphics.Bitmap;
 
 import com.facepp.error.FaceppParseException;
 import com.facepp.http.HttpRequests;
+import com.facepp.http.PostParameters;
 
 import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 
 public class FaceDetect {
 
@@ -29,6 +32,18 @@ public class FaceDetect {
             public void run() {
                 //创建request请求
                 //构造器的第三个参数是问是否是中国地区。经过测试，发现第三个参数和第四个参数都为true，能获得更可靠的网络连接
+                HttpRequests requests = new HttpRequests(Constant.KEY , Constant.SECRET , true , true);
+                //传进来的bitmap还需要进一步处理
+                Bitmap bmSmall = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight());
+                //将bitmap压缩到输出流当中去，然后再把这个输出流转化成字节数组
+                ByteArrayOutputStream stream =  new ByteArrayOutputStream();
+                //通过compress()方法,就把bmSmall压缩到了stream中去了
+                bmSmall.compress(Bitmap.CompressFormat.JPEG,100,stream);
+                //再把stream转化为字节数组
+                byte[] arrays = stream.toByteArray();
+                //有了二进制字节之后，就可以拼接一个参数了
+                PostParameters params = new PostParameters();
+                params.setImg(arrays);
 
             }
         });
