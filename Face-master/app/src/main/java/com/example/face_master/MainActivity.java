@@ -115,7 +115,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String sex = attributeObj.getJSONObject("gender").getString("value");
                 int age  = attributeObj.getJSONObject("age").getInt("value");
 
-                
+                //接下来绘制显示性别和年龄的气泡，直接用TextView就能省很多事：
+                //气泡背景background是一个9patch图片；drawableLeft是性别；文字text是年龄
+                //现在的问题是：把一个TextView转化成Bitmap，绘制在当前的画布上
+                    Bitmap ageBitmap = buildAgeBitmap(age,"Male".equals(sex));
+                    //下面是为了让气泡与图形的大小保持一个和谐的比例
+                int ageWidth = ageBitmap.getWidth();
+                int ageHeight = ageBitmap.getHeight();
+                if (bitmap.getWidth()<mPhoto.getWidth() && bitmap.getHeight() <mPhoto.getHeight()){
+                    float ratio = Math.max(bitmap.getWidth() * 1.0f / mPhoto.getWidth() , bitmap.getHeight() * 1.0f / mPhoto.getHeight());
+                    ageBitmap = Bitmap.createScaledBitmap(ageBitmap, (int)(ageWidth * ratio), (int)(ageHeight * ratio) , false);
+                    canvas.drawBitmap(ageBitmap , x - ageBitmap.getWidth() / 2 , y - height / 2 - ageBitmap.getHeight() , null);
+                    //把画完的位图重新赋给那个变量
+                    mPhotoImg = bitmap;
+                }
 
 
             }
@@ -123,6 +136,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private Bitmap buildAgeBitmap(int age, boolean isMale) {
+        TextView tv = (TextView) findViewById(R.id.id_ageAndSex);
+        tv.setText(" " + age + " ");
+        if(isMale == true) {
+            tv.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.male) , null , null , null);
+        }
+        else {
+            tv.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.female) , null , null , null);
+        }
+        tv.setDrawingCacheEnabled(true);
+        Bitmap bitmap = Bitmap.createBitmap(tv.getDrawingCache());
+        tv.destroyDrawingCache();
+        return bitmap;
     }
 
 
