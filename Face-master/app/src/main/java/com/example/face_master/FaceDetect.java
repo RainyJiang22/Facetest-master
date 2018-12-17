@@ -29,7 +29,7 @@ public class FaceDetect {
             public void run() {
                 //创建request请求
                 //构造器的第三个参数是问是否是中国地区。经过测试，发现第三个参数和第四个参数都为true，能获得更可靠的网络连接
-                
+
             }
         });
     }
