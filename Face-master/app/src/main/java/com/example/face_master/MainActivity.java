@@ -3,6 +3,7 @@ package com.example.face_master;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -98,9 +99,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //有了这个路径之后，就可以去这个路径去获取图片
                 //不过由于通常一个照片好一点的动不动就是好几十MB，而Face++的SDK对此有限制，要求照片转换为二进制数据
                 //最大不能超过3M，因此需要对要获取的图片进行一个压缩。所以自定义了一个resizePhoto()方法去压缩照片
-                
+
+                resizePhoto();
+
             }
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    /**
+     * 压缩需要注意的问题是，最终压缩后的图片不能超过3M
+     */
+    private void resizePhoto() {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoStr,options);
+
+        double ratio = Math.max(options.outWidth * 1.0d / 1024f , options.outHeight * 1.0d / 1024f);
+        options.inSampleSize = (int) Math.ceil(ratio);
+        options.inJustDecodeBounds = false;
+        mPhotoImg = BitmapFactory.decodeFile(mCurrentPhotoStr,options);
     }
 }
