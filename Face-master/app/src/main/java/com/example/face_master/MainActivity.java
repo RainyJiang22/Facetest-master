@@ -1,5 +1,6 @@
 package com.example.face_master;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -7,7 +8,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     //声明用于startActivityForResult()的请求码，随便设置一个常量0x110
     private static final int PIC_CODE = 0x110;
@@ -48,6 +49,21 @@ public class MainActivity extends AppCompatActivity {
 
     //初始化各个控件的监听器
     private void initEvents() {
+        mGetImage.setOnClickListener(this);
+        mDetect.setOnClickListener(this);
     }
 
+    @Override
+    public void onClick(View view) {
+
+        //接下来实现获取图片的方法
+       switch (view.getId()){
+           case R.id.id_getImage:
+               Intent intent = new Intent(Intent.ACTION_PICK);
+               intent.setType("image/*");
+               startActivityForResult(intent,PIC_CODE);
+               break;
+       }
+
+    }
 }
