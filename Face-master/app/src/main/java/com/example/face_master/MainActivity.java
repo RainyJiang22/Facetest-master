@@ -8,9 +8,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -160,6 +163,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mGetImage.setOnClickListener(this);
         mDetect.setOnClickListener(this);
     }
+
+
+    //定义两个常量来区分图片分析之后是成功还是出错
+    private static final int MSG_SUCCESS= 0x111;
+    private static final int MSG_ERROR = 0x112;
+
+    //用于避免子线程控制UI的异步处理
+    private Handler myHandler = new Handler(){
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case MSG_SUCCESS:
+                    mWaitting.setVisibility(View.GONE);
+                    JSONObject rs  = (JSONObject) msg.obj;
+                    prepareRsBitmap(rs);
+                    mPhoto.setImageBitmap(mPhotoImg);
+                    break;
+                case MSG_ERROR:
+                    mWaitting.setVisibility(View.GONE);
+                    String errorMsg = (String) msg.obj;
+                    if (TextUtils.isEmpty(errorMsg)){
+                        mTip.setText("确认是否联网");
+                    }
+                    else{
+                        mTip.setText(errorMsg);
+                    }
+                    break;
+            }
+            super.handleMessage(msg);
+        }
+    };
+
 
     @Override
     public void onClick(View view) {
