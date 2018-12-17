@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +15,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -33,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Bitmap mPhotoImg =  null;
 
 
+    //创建一个画笔，用于绘制矩形框
+    private Paint mPaint = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +53,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //设置监听器的初始化
         initEvents();
+
+        //初始化画笔
+        mPaint = new Paint();
     }
 
 
@@ -56,6 +68,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTip = (TextView) findViewById(R.id.id_tip);
         mWaitting = findViewById(R.id.id_watting);
 
+    }
+
+    private void prepareRsBitmap(JSONObject rs) {
+        //因为画矩形是在原图上面画的，因此先用bitmap取得一个复制品，再使用Canvas画布画
+        Bitmap bitmap = Bitmap.createBitmap(mPhotoImg.getWidth() , mPhotoImg.getHeight() , mPhotoImg.getConfig());
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawBitmap(mPhotoImg,0,0,null);
+
+
+        try{
+            JSONArray faces = rs.getJSONArray("face");
+
+            //记录检测到了多少张脸
+            int faceCount = faces.length();
+            mTip.setText("发现有"+ faceCount + "张脸");
+
+            for (int i = 0;i<faceCount;i++){
+                //拿到单独的face对象
+                JSONObject face = faces.getJSONObject(i);
+                //接下来解析face对象的属性，因为要围着脸画一个矩形
+                //因此需要获得人脸左上角的起始坐标和人脸的宽度和高度，这样才能确定一个矩形
+                JSONObject positionObj = face.getJSONObject("position");
+                float x = (float) positionObj.getJSONObject("center").getDouble("x");
+                float y = (float) positionObj.getJSONObject("center").getDouble("y");
+                float width = (float) positionObj.getDouble("width");
+                float height = (float) positionObj.getDouble("height");
+                //face++返回的那些JSON数据都是百分比，需要转换为实际像素点位置后才能使用
+
+                x= x /100 * bitmap.getWidth();
+                y = y/100 * bitmap.getHeight();
+                width = width / 100 * bitmap.getWidth();
+                height = height / 100 * bitmap.getHeight();
+
+                //设置画笔的属性
+                mPaint.setColor(Color.WHITE);
+                mPaint.setStrokeWidth(3);
+                //开始画矩形
+                canvas.drawLine(x - width / 2 , y - height / 2 , x - width / 2 , y + height / 2 , mPaint);
+                canvas.drawLine(x - width / 2 , y + height / 2 , x + width / 2 , y + height / 2 , mPaint);
+                canvas.drawLine(x + width / 2 , y + height / 2 , x + width / 2 , y - height / 2 , mPaint);
+                canvas.drawLine(x + width / 2 , y - height / 2 , x - width / 2 , y - height / 2 , mPaint);
+
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 
