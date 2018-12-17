@@ -110,6 +110,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 canvas.drawLine(x + width / 2 , y + height / 2 , x + width / 2 , y - height / 2 , mPaint);
                 canvas.drawLine(x + width / 2 , y - height / 2 , x - width / 2 , y - height / 2 , mPaint);
 
+                //获得图像中的人物的性别和年龄
+                JSONObject attributeObj = face.getJSONObject("attribute");
+                String sex = attributeObj.getJSONObject("gender").getString("value");
+                int age  = attributeObj.getJSONObject("age").getInt("value");
+
+                
+
+
             }
 
         } catch (JSONException e) {
