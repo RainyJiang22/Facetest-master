@@ -19,6 +19,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facepp.error.FaceppParseException;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -206,6 +208,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                Intent intent = new Intent(Intent.ACTION_PICK);
                intent.setType("image/*");
                startActivityForResult(intent,PIC_CODE);
+               break;
+           case R.id.id_detect:
+               //让进度条显示出来
+               mWaitting.setVisibility(View.VISIBLE);
+
+               //避免异常操作，先判断一下用户是否选择了照片
+               if (mCurrentPhotoStr != null && mCurrentPhotoStr.trim().equals("") == false){
+                   //如果用户已经选择了照片
+                   resizePhoto();
+               }
+               else{
+                   //如果用户还没有选择图片以上就开始分析了，就采用默认图片
+                   mPhotoImg = BitmapFactory.decodeResource(getResources() , R.drawable.t4);
+               }
+
+               FaceDetect.detect(mPhotoImg, new FaceDetect.CallBack() {
+                   @Override
+                   public void success(JSONObject result) {
+                       Message msg = Message.obtain();
+                       msg.what = MSG_SUCCESS;
+                       msg.obj = result;
+                       myHandler.sendMessage(msg);
+                   }
+
+                   @Override
+                   public void error(FaceppParseException exception) {
+                         Message msg =  Message.obtain();
+                         msg.what = MSG_ERROR;
+                         msg.obj = exception.getErrorMessage();
+                         myHandler.sendMessage(msg);
+                   }
+               });
                break;
        }
 
