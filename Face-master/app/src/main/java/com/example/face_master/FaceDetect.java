@@ -2,6 +2,7 @@ package com.example.face_master;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.facepp.error.FaceppParseException;
 import com.facepp.http.HttpRequests;
@@ -44,9 +45,21 @@ public class FaceDetect {
                 //有了二进制字节之后，就可以拼接一个参数了
                 PostParameters params = new PostParameters();
                 params.setImg(arrays);
-
-            }
-        });
+          //下面通过网络进行分析了
+                try{
+                    JSONObject jsonObject = requests.detectionDetect(params);
+                    Log.d("TAG",jsonObject.toString());
+                    if (callBack != null){
+                        callBack.success(jsonObject);
+                    }
+                } catch (FaceppParseException e) {
+                    e.printStackTrace();
+                    if (callBack != null){
+                        callBack.error(e);
+                    }
+                }
+            }//run()方法结束
+        }).start();
     }
 
 
