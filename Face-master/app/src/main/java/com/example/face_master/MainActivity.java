@@ -102,6 +102,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 resizePhoto();
 
+                //压缩图片完之后需要再屏幕上显示出来
+                mPhoto.setImageBitmap(mPhotoImg);
+                mTip.setText("可以开始分析了===>");
             }
         }
         super.onActivityResult(requestCode, resultCode, intent);
